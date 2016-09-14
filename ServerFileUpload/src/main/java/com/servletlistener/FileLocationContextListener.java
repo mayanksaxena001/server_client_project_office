@@ -10,7 +10,7 @@ import javax.servlet.annotation.WebListener;
 @WebListener
 public class FileLocationContextListener implements ServletContextListener {
 
-    public static final String SERVER_FILE_PATH= "D:/Servlet_Example";
+    public static final String SERVER_FILE_PATH= "D:/server_file_store";
     public void contextInitialized(ServletContextEvent servletContextEvent) {
     	String rootPath = System.getProperty("catalina.home");
     	ServletContext ctx = servletContextEvent.getServletContext();

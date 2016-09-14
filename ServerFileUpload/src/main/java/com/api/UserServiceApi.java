@@ -27,7 +27,7 @@ public interface UserServiceApi {
     @GET
     @Path("/users/details/{userName}")
     @Produces(MediaType.APPLICATION_JSON)
-    UserDetail getUsersDetails(@PathParam("userName") String userName);
+    UserDetail getUserDetails(@PathParam("userName") String userName);
     
     @POST
     @Path("/users/check")
@@ -38,4 +38,9 @@ public interface UserServiceApi {
     @Path("/users/store")
     @Consumes(MediaType.APPLICATION_JSON)
     Response storeUserDetailsOnServer(@Context HttpServletRequest request);
+    
+    @POST
+    @Path("/users/update")
+    @Consumes(MediaType.APPLICATION_JSON)
+    Response updateUserDetailsOnServer(@Context HttpServletRequest request);
 }

@@ -11,11 +11,14 @@ import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 
 import org.springframework.stereotype.Service;
 
 import com.api.UserServiceApi;
+import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Service
@@ -25,8 +28,16 @@ public class UserService implements UserServiceApi {
     @PostConstruct
     private void init(){
 	System.out.println("Inside user service init");
-	userlist.add(new User("Admin","Admin"));
-	userlist.add(new User("Mayank","Mayank"));
+	User user1=new User("Admin","#Admin1#");
+	userlist.add(user1);
+	UserDetail userDetail=new UserDetail();
+	userDetail.setUser(user1);
+	userDetailList.add(userDetail);
+	User user2=new User("Mayank","#Mayank1#");
+	userlist.add(user2);
+	userDetail=new UserDetail();
+	userDetail.setUser(user2);
+	userDetailList.add(userDetail);
     }
     public List<User> getUsers() {
 	return userlist;
@@ -69,20 +80,17 @@ public class UserService implements UserServiceApi {
 	}
 	return sb.toString().trim();
     }
-//    public User findUserByName(final String name) {
-//	return list.stream().filter(u-> {
-//		return u.getUserName().equals(name);
-//	    }).findFirst().get();
-//    }
+
     @Override
     public Response storeUserDetailsOnServer(HttpServletRequest request) {
-	UserDetail userDetail=null;
 	try {
-	    String json=getStringFromInputStream(request.getInputStream());
-	    userDetail=new ObjectMapper().readValue(json.isEmpty()?"":json, UserDetail.class);
+	    UserDetail userDetail = getUserDetailFromJSon(request);
 	    if(userDetail!=null){
 		userDetailList.add(userDetail);
 		userlist.add(userDetail.getUser());
+	    }else{
+		 return Response.status(Status.NO_CONTENT).type(MediaType.APPLICATION_JSON)
+			    .entity("Invalid Json Format").build();
 	    }
 	}catch (Exception e) {
 	    e.printStackTrace();
@@ -92,8 +100,42 @@ public class UserService implements UserServiceApi {
 	   return Response.ok().type(MediaType.APPLICATION_JSON)
 		    .entity("Successfully stored").build();
     }
+    
     @Override
-    public UserDetail getUsersDetails(String userName) {
+    public Response updateUserDetailsOnServer(HttpServletRequest request) {
+	try {
+	    UserDetail userDetail = getUserDetailFromJSon(request);
+	    if(userDetail!=null){
+		if(userlist.contains(userDetail.getUser())){
+		    UserDetail updateUserDetail=userDetailList.stream().filter(p->p.getUser().equals(userDetail.getUser())).findFirst().get();
+		    updateUserDetail.setFirstName(userDetail.getFirstName());
+		    updateUserDetail.setLastName(userDetail.getLastName());
+		    updateUserDetail.seteMailId(userDetail.geteMailId());
+		    updateUserDetail.setDateOfBirth(userDetail.getDateOfBirth());
+		    updateUserDetail.setGender(userDetail.getGender());
+		}else{
+		    Response.status(Status.NOT_FOUND).type(MediaType.APPLICATION_JSON)
+		    .entity("User Not Found").build();
+		}
+	    }
+	}catch (Exception e) {
+	    e.printStackTrace();
+	    return Response.status(Status.NOT_ACCEPTABLE).type(MediaType.APPLICATION_JSON)
+		    .entity("Invalid Json Format").build();
+	}
+	   return Response.ok().type(MediaType.APPLICATION_JSON)
+		    .entity("Successfully stored").build();
+    }
+    
+    private UserDetail getUserDetailFromJSon(HttpServletRequest request)
+	    throws IOException, JsonParseException, JsonMappingException {
+	String json=getStringFromInputStream(request.getInputStream());
+	UserDetail userDetail=new ObjectMapper().readValue(json.isEmpty()?"":json, UserDetail.class);
+	return userDetail;
+    }
+    
+    @Override
+    public UserDetail getUserDetails(String userName) {
 	return userDetailList.stream().filter((p)->p.getUser().getUserName().equals(userName)).findFirst().orElse(null);
     }
 
