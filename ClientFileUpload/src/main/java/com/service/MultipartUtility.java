@@ -31,10 +31,10 @@ public class MultipartUtility {
      * @param charset
      * @throws IOException
      */
-    public MultipartUtility(HttpURLConnection httpConnection,String requestURL, String charset)
+    public MultipartUtility(HttpURLConnection httpConnection_1,String requestURL, String charset)
             throws IOException {
         this.charset = charset;
-        this.httpConnection=httpConnection;
+        this.httpConnection=httpConnection_1;
         // creates a unique boundary based on time stamp
         boundary = "===" + System.currentTimeMillis() + "===";
         URL url = new URL(requestURL);
