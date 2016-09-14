@@ -9,6 +9,7 @@ import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
@@ -17,15 +18,18 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
+import javafx.stage.Stage;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import com.clientfileupload.Loader;
+import com.service.LoginService;
 import com.service.ServerClient;
 import com.util.URL_ENUM;
 import com.util.User;
+import com.util.UserDetail;
 import com.util.Utility;
 
 @Component
@@ -33,27 +37,39 @@ import com.util.Utility;
 public class FileUploadClientUIController implements Initializable{
 
     @FXML
-    TextField urlTextField;
+    private TextField urlTextField;
     
     @FXML
-    Button uploadButton;
+    private Button uploadButton;
     
     @FXML
-    Button downloadButton;
+    private Button editButton;
     
     @FXML
-    Label userNameLabel;
+    private Button downloadButton;
     
     @FXML
-    Button logoutButton;
+    private Label userNameLabel;
     
-    File currentSelectedFile=null;
+    @FXML
+    private Button logoutButton;
+    
+    private File currentSelectedFile=null;
     
     @Autowired
-    BaseUIController baseUIController;
+    private BaseUIController baseUIController;
+    
+    @Autowired
+    private SignUpUIController signUpUIController;
+    
+    @Autowired
+    private LoginService loginService;
+    
+    private UserDetail currentUserDetail;
     
     public void initialize(URL arg0, ResourceBundle arg1) {
 	reset();
+	setCurrentUserLabel();
     }
     
     @FXML
@@ -98,14 +114,43 @@ public class FileUploadClientUIController implements Initializable{
     public void handleLogoutAction(Event event){
 	baseUIController.loadStartScreen();
     }
+    
+    @FXML
+    public void handleEditButtonAction(Event event){
+	Stage stage=new Stage();
+	try {
+	    Scene scene=new Scene(Loader.getSignUpScreen(),500,500);
+	    stage.setScene(scene);
+	    stage.show();
+	    signUpUIController.setEditProperties();
+	    signUpUIController.init(currentUserDetail);
+	} catch (Exception e) {
+	    e.printStackTrace();
+	    Utility.reportError(e.getMessage());
+	}
+    }
 
     private void reset() {
 	urlTextField.setText(URL_ENUM.url);
 	downloadButton.setText("Download");
     }
     
-    void setCurrentUserLabel(User user){
-	userNameLabel.setText(user.getUserName());
+    private void setCurrentUserLabel(){
+	if(currentUserDetail!=null){
+	    if(currentUserDetail.getFirstName()==null || currentUserDetail.getLastName()==null){
+		Utility.reportError("Please update user details .Click Edit button on top right");
+	    }
+	    userNameLabel.setText(currentUserDetail.getFirstName()+" "+currentUserDetail.getLastName());
+	}
+    }
+
+    public UserDetail getCurrentUserDetail() {
+        return currentUserDetail;
+    }
+
+    public void setCurrentUserDetail(UserDetail currentUserDetail) {
+        this.currentUserDetail = currentUserDetail;
+        setCurrentUserLabel();
     }
 
 }

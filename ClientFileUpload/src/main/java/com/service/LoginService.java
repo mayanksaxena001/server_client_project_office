@@ -26,16 +26,13 @@ import com.util.UserDetail;
 @Component
 public class LoginService {
     private static HttpURLConnection httpConnection = ServerClient.httpConnection;
-    private static List<User> users = new ArrayList<User>();
+    public static List<User> users = new ArrayList<User>();
+    public static List<UserDetail> userDetailList = new ArrayList<UserDetail>();
 
      @PostConstruct
      public void init(){
-     try{
      getUsers();
      System.out.println("Inside Login service init");
-     }catch(Exception e){
-     System.out.println("Exception calling user service "+e.getMessage());
-     }
      }
     public List<User> getUsers() {
 	String userURL = URL_ENUM.LOGIN_USERS.getUrl();
@@ -47,10 +44,14 @@ public class LoginService {
 		InputStream inputStream = httpConnection.getInputStream();
 		JSONArray array = new JSONArray(
 			getStringFromInputStream(inputStream));
+		 UserDetail userDetail=null;
 		for (int i = 0; i < array.length(); i++) {
 		    String json = array.getString(i);
 		    User user = new ObjectMapper().readValue(json, User.class);
 		    users.add(user);
+		    userDetail=new UserDetail();
+		    userDetail.setUser(user);
+		    userDetailList.add(userDetail);
 		}
 	    } else {
 		System.out
@@ -96,8 +97,8 @@ public class LoginService {
 	return sb.toString().trim();
     }
 
-    public void storeUserDetailToServer(UserDetail userDetail) throws Exception {
-	String userURL = URL_ENUM.STORE_USER_DETAILS.getUrl();
+    public void storeUserDetailToServer(UserDetail userDetail,String path) throws Exception {
+	String userURL = path;
 	System.out.println(userURL);
 	StringBuilder errors = new StringBuilder();
 	;
@@ -114,6 +115,8 @@ public class LoginService {
 	    if (responseCode != HttpURLConnection.HTTP_OK){
 		errors.append("Error storing user details\n");
 		System.out.println("Error storing user details" + responseCode);
+	    }else{
+		userDetailList.add(userDetail);
 	    }
 	} catch (MalformedURLException e) {
 	    errors.append(e.getMessage() + "\n");
@@ -134,5 +137,8 @@ public class LoginService {
 	    list.add(user.getUserName());
 	}
 	return list;
+    }
+    public void updateUserDetails(UserDetail userDetail) throws Exception {
+	storeUserDetailToServer(userDetail,URL_ENUM.UPDATE_USER_DETAILS.getUrl());
     }
 }

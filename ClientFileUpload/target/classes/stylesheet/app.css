@@ -1,5 +1,4 @@
 .root {
-	-fx-background-color: #b3e5ff;
     -fx-component-background-dark: #4dc2ff;
      radiobutton-checkbox-color:#039ED3;
     -fx-tab-text-color :#005daa;
@@ -56,7 +55,7 @@
 .tab-pane .tab:selected {
 	-fx-background-color: -fx-tab-text-color, white;
 	-fx-border-color: transparent;
-	-fx-background-insets: 0.5, 0 0 3 0;
+	-fx-background-insets: 0, 0 0 5 0;
 	-fx-border-insets: 0, 0, 0, 0;
 	
 }
@@ -69,9 +68,9 @@
 }
 .tab .tab-label {
 	-fx-alignment: CENTER;
-	 -fx-font-size: 12px;
+	 -fx-font-size: 14px;
 	 -fx-font-family: "Roboto";
-	 -fx-font-weight: normal;
+	 -fx-font-weight: BOLD;
 	 -fx-text-fill: #414141;
 }
 .tab-pane *.tab-header-background {
@@ -81,5 +80,5 @@
 	-fx-border-width: 0 0 1 0;
 }
 .tab-pane .tab-header-area {
-	-fx-padding: 0 0 0 15;
+	-fx-padding: 0 0 0 0;
 }

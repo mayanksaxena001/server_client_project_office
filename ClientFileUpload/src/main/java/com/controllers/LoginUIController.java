@@ -24,6 +24,7 @@ import org.springframework.stereotype.Component;
 import com.clientfileupload.Loader;
 import com.service.LoginService;
 import com.util.User;
+import com.util.UserDetail;
 import com.util.Utility;
 
 @Component
@@ -39,7 +40,7 @@ public class LoginUIController implements Initializable {
     @FXML
     Button loginButton;
 
-    private User currentUser = null;
+    private UserDetail currentUserDetail = null;
     
     @Autowired
     FileUploadClientUIController fileUploadClientUIController;
@@ -61,7 +62,7 @@ public class LoginUIController implements Initializable {
 	try {
 	    if(Validate()){
 		baseUIController.loadDashBoardScreen();
-		fileUploadClientUIController.setCurrentUserLabel(currentUser);
+		fileUploadClientUIController.setCurrentUserDetail(currentUserDetail);
 	    }else{
 		passwordTextField.clear();
 		Alert alert=new Alert(AlertType.ERROR);
@@ -88,7 +89,8 @@ public class LoginUIController implements Initializable {
 		passwordTextField.getText());
 	Boolean value = loginService.validateUser(user);
 	if(value){
-	    currentUser=user;
+	    UserDetail userDetail=LoginService.userDetailList.stream().filter(p->p.getUser().equals(user)).findFirst().get();
+	    currentUserDetail=userDetail;
 	}
 	return value;
     }
@@ -96,7 +98,7 @@ public class LoginUIController implements Initializable {
    public void reset(){
        userNameTextfFeld.clear();
        passwordTextField.clear();
-       currentUser=null;
+       currentUserDetail=null;
    }
 
 }
