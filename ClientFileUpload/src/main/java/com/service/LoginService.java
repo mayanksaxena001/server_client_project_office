@@ -31,7 +31,7 @@ public class LoginService {
 
      @PostConstruct
      public void init(){
-     getUsers();
+//     getUsers();
      System.out.println("Inside Login service init");
      }
     public List<User> getUsers() {
@@ -69,7 +69,7 @@ public class LoginService {
     }
 
     public Boolean validateUser(User user) {
-	return users.contains(user);
+	return getUsers().contains(user);
     }
 
     private static String getStringFromInputStream(InputStream is) {

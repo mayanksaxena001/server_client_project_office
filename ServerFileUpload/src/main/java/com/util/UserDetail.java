@@ -1,4 +1,4 @@
-package com.api.impl;
+package com.util;
 
 import java.util.Date;
 

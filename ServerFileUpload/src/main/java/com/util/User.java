@@ -1,4 +1,4 @@
-package com.api.impl;
+package com.util;
 
 public class User {
 

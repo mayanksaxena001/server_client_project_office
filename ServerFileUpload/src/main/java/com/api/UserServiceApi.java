@@ -13,8 +13,8 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import com.api.impl.User;
-import com.api.impl.UserDetail;
+import com.util.User;
+import com.util.UserDetail;
 
 @Path("/service")
 public interface UserServiceApi {
