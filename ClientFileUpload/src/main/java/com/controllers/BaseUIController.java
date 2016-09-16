@@ -55,7 +55,7 @@ public class BaseUIController implements Initializable {
     HBox bottomHBox;
     
     @FXML
-	BorderPane borderPane;
+    BorderPane borderPane;
     
     @Autowired
     LoginUIController loginUIController;
@@ -67,19 +67,20 @@ public class BaseUIController implements Initializable {
     
     @Override
     public void initialize(URL arg0, ResourceBundle arg1) {
-    	try {
-			logIn.setContent(Loader.getLoginScreen());
-			signUp.setContent(Loader.getSignUpScreen());
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-    	initComponents();
+	borderPane.getStylesheets().add("/stylesheet/app.css");
+	try {
+	    logIn.setContent(Loader.getLoginScreen());
+	    signUp.setContent(Loader.getSignUpScreen());
+	} catch (IOException e) {
+	    e.printStackTrace();
+	}
+	initComponents();
 	list.addAll(centerVBox.getChildren());
     }
 
 	private void initComponents() {
 		// new Image(url)
-		Image image=new Image(ClientUIMain.class.getResourceAsStream("/fxml/pic_1.jpg"));
+		Image image=new Image(ClientUIMain.class.getResourceAsStream("/image/pic_1.jpg"));
 		// new BackgroundSize(width, height, widthAsPercentage, heightAsPercentage, contain, cover)
 		BackgroundSize backgroundSize = new BackgroundSize(BackgroundSize.AUTO, BackgroundSize.AUTO, true, true, true, false);
 		// new BackgroundImage(image, repeatX, repeatY, position, size)

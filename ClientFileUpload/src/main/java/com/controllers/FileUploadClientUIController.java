@@ -93,7 +93,7 @@ public class FileUploadClientUIController implements Initializable{
     @FXML
     public void handleDownload(ActionEvent event){
 	DirectoryChooser chooser = new DirectoryChooser();
-	chooser.setTitle("JavaFX Projects");
+	chooser.setTitle("Choose");
 //	File defaultDirectory = new File("c:/dev/javafx");
 //	chooser.setInitialDirectory(defaultDirectory);
 	File selectedDirectory = chooser.showDialog(null);
@@ -119,8 +119,9 @@ public class FileUploadClientUIController implements Initializable{
     public void handleEditButtonAction(Event event){
 	Stage stage=new Stage();
 	try {
-	    Scene scene=new Scene(Loader.getSignUpScreen(),500,500);
+	    Scene scene=new Scene(Loader.getSignUpScreen());
 	    stage.setScene(scene);
+	    scene.getStylesheets().add("/stylesheet/app.css");
 	    stage.show();
 	    signUpUIController.setEditProperties();
 	    signUpUIController.init(currentUserDetail);
