@@ -1,3 +1,4 @@
 #TO-DO = Store User info into a database
 #TO-DO = All Server responses into JSON
 #TO-DO = Client UI 
+#TO-DO = SignUp UI not responding after a login
