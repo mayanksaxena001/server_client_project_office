@@ -1,5 +1,6 @@
 package com.controllers;
 
+import java.io.IOException;
 import java.net.URL;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -19,13 +20,17 @@ import javafx.scene.control.DatePicker;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.util.StringConverter;
 
+import org.json.JSONException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.service.LoginService;
 import com.util.Gender;
 import com.util.URL_ENUM;
@@ -72,6 +77,9 @@ public class SignUpUIController implements Initializable {
 
     @FXML
     DatePicker dobPicker;
+    
+    @FXML
+    public VBox vbox;
 
     @Autowired
     LoginService loginService;
@@ -86,7 +94,7 @@ public class SignUpUIController implements Initializable {
 	reset();
 	setComponentProperties();
 	setSignUpProperties();
-	temporaryFields();
+//	temporaryFields();
     }
 
     public void init(UserDetail userDetail) {
@@ -180,6 +188,7 @@ public class SignUpUIController implements Initializable {
 	userNameTextField.setDisable(false);
 	passwordField.setDisable(false);
 	passwordTextField.setDisable(false);
+	vbox.getStyleClass().clear();
     }
 
     @FXML
@@ -280,7 +289,7 @@ public class SignUpUIController implements Initializable {
 	return Pattern.compile(PASSWORD_PATTERN).matcher(text).matches();
     }
 
-    private boolean validateUserName(String text) {
+    private boolean validateUserName(String text) throws JsonParseException, JsonMappingException, IOException, JSONException {
 	return loginService.getUserNameList().contains(text);
     }
 

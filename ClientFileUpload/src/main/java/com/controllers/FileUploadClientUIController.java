@@ -121,7 +121,9 @@ public class FileUploadClientUIController implements Initializable{
 	try {
 	    Scene scene=new Scene(Loader.getSignUpScreen());
 	    stage.setScene(scene);
+	    scene.getStylesheets().clear();
 	    scene.getStylesheets().add("/stylesheet/app.css");
+	    signUpUIController.vbox.getStyleClass().add("pane");
 	    stage.show();
 	    signUpUIController.setEditProperties();
 	    signUpUIController.init(currentUserDetail);

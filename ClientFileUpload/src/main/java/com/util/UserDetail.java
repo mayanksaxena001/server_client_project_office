@@ -114,4 +114,10 @@ public class UserDetail {
 	return true;
     }
 
+	@Override
+	public String toString() {
+		return "UserDetail [firstName=" + firstName + ", lastName=" + lastName + ", eMailId=" + eMailId
+				+ ", dateOfBirth=" + dateOfBirth + ", gender=" + gender + ", user=" + user + "]";
+	}
+
 }

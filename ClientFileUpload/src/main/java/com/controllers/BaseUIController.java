@@ -67,7 +67,6 @@ public class BaseUIController implements Initializable {
     
     @Override
     public void initialize(URL arg0, ResourceBundle arg1) {
-	borderPane.getStylesheets().add("/stylesheet/app.css");
 	try {
 	    logIn.setContent(Loader.getLoginScreen());
 	    signUp.setContent(Loader.getSignUpScreen());

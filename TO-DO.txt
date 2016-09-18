@@ -1,0 +1,3 @@
+#TO-DO = Store User info into a database
+#TO-DO = All Server responses into JSON
+#TO-DO = Client UI 

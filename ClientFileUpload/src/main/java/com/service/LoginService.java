@@ -15,9 +15,12 @@ import javax.annotation.PostConstruct;
 
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.util.URL_ENUM;
 import com.util.User;
@@ -29,14 +32,16 @@ public class LoginService {
     public static List<User> users = new ArrayList<User>();
     public static List<UserDetail> userDetailList = new ArrayList<UserDetail>();
 
+    @Autowired
+	ObjectMapper objectMapper;
+    
      @PostConstruct
      public void init(){
 //     getUsers();
      System.out.println("Inside Login service init");
      }
-    public List<User> getUsers() {
+    public List<User> getUsers() throws JsonParseException, JsonMappingException, IOException, JSONException {
 	String userURL = URL_ENUM.LOGIN_USERS.getUrl();
-	try {
 	    URL url = new URL(userURL);
 	    httpConnection = (HttpURLConnection) url.openConnection();
 	    int responseCode = httpConnection.getResponseCode();
@@ -47,7 +52,7 @@ public class LoginService {
 		 UserDetail userDetail=null;
 		for (int i = 0; i < array.length(); i++) {
 		    String json = array.getString(i);
-		    User user = new ObjectMapper().readValue(json, User.class);
+		    User user =objectMapper.readValue(json, User.class);
 		    users.add(user);
 		    userDetail=new UserDetail();
 		    userDetail.setUser(user);
@@ -57,18 +62,11 @@ public class LoginService {
 		System.out
 			.println("Error calling user service " + responseCode);
 	    }
-	} catch (JSONException e) {
-	    e.printStackTrace();
-	} catch (MalformedURLException e) {
-	    e.printStackTrace();
-	} catch (IOException e) {
-	    e.printStackTrace();
-	}
 	httpConnection.disconnect();
 	return users;
     }
 
-    public Boolean validateUser(User user) {
+    public Boolean validateUser(User user) throws JsonParseException, JsonMappingException, IOException, JSONException {
 	return getUsers().contains(user);
     }
 
@@ -101,7 +99,6 @@ public class LoginService {
 	String userURL = path;
 	System.out.println(userURL);
 	StringBuilder errors = new StringBuilder();
-	;
 	try {
 	    URL url = new URL(userURL);
 	    httpConnection = (HttpURLConnection) url.openConnection();
@@ -109,7 +106,7 @@ public class LoginService {
 	        httpConnection.setDoOutput(true);    // indicates POST method
 	        httpConnection.setRequestProperty("Content-Type",MediaType.APPLICATION_JSON_VALUE);
 	        OutputStream outputStream = httpConnection.getOutputStream();
-	        outputStream.write(new ObjectMapper().writeValueAsString(
+	        outputStream.write(objectMapper.writeValueAsString(
 	        	userDetail).getBytes());
 	    int responseCode = httpConnection.getResponseCode();
 	    if (responseCode != HttpURLConnection.HTTP_OK){
@@ -131,7 +128,7 @@ public class LoginService {
 	}
     }
 
-    public List<String> getUserNameList() {
+    public List<String> getUserNameList() throws JsonParseException, JsonMappingException, IOException, JSONException {
 	List<String> list = new ArrayList<String>();
 	for (User user : getUsers()) {
 	    list.add(user.getUserName());
@@ -141,4 +138,18 @@ public class LoginService {
     public void updateUserDetails(UserDetail userDetail) throws Exception {
 	storeUserDetailToServer(userDetail,URL_ENUM.UPDATE_USER_DETAILS.getUrl());
     }
+    
+    public UserDetail getUserDetail(String fileName) throws JsonParseException, JsonMappingException, IOException{
+	    String userURL=URL_ENUM.GET_USER_DETAILS.getUrl()+fileName;
+	    UserDetail userDetail=null;
+		URL url = new URL(userURL);
+	    httpConnection = (HttpURLConnection) url.openConnection();
+	    int responseCode = httpConnection.getResponseCode();
+	    if (responseCode == HttpURLConnection.HTTP_OK) {
+		InputStream inputStream = httpConnection.getInputStream();
+		userDetail=objectMapper.readValue(getStringFromInputStream(inputStream),UserDetail.class);
+	    }
+	    httpConnection.disconnect();
+	    return userDetail;
+}
 }

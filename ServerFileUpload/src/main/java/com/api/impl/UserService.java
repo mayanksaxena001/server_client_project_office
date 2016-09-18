@@ -83,13 +83,13 @@ public class UserService implements UserServiceApi {
 	return sb.toString().trim();
     }
 
-    @Override
     public Response storeUserDetailsOnServer(HttpServletRequest request) {
 	try {
 	    UserDetail userDetail = getUserDetailFromJSon(request);
 	    if(userDetail!=null){
 		userDetailList.add(userDetail);
 		userlist.add(userDetail.getUser());
+		displayUsers("storeUserDetailsOnServer".toUpperCase());
 	    }else{
 		 return Response.status(Status.NO_CONTENT).type(MediaType.APPLICATION_JSON)
 			    .entity("Invalid Json Format").build();
@@ -103,7 +103,6 @@ public class UserService implements UserServiceApi {
 		    .entity("Successfully stored").build();
     }
     
-    @Override
     public Response updateUserDetailsOnServer(HttpServletRequest request) {
 	try {
 	    UserDetail userDetail = getUserDetailFromJSon(request);
@@ -119,6 +118,7 @@ public class UserService implements UserServiceApi {
 		    Response.status(Status.NOT_FOUND).type(MediaType.APPLICATION_JSON)
 		    .entity("User Not Found").build();
 		}
+		displayUsers("updateUserDetailsOnServer".toUpperCase());
 	    }
 	}catch (Exception e) {
 	    e.printStackTrace();
@@ -133,12 +133,21 @@ public class UserService implements UserServiceApi {
 	    throws IOException, JsonParseException, JsonMappingException {
 	String json=getStringFromInputStream(request.getInputStream());
 	UserDetail userDetail=new ObjectMapper().readValue(json.isEmpty()?"":json, UserDetail.class);
+	System.out.println("getUserDetailFromJSon User Detail : "+userDetail);
 	return userDetail;
     }
     
-    @Override
-    public UserDetail getUserDetails(String userName) {
-	return userDetailList.stream().filter((p)->p.getUser().getUserName().equals(userName)).findFirst().orElse(null);
+	public UserDetail getUserDetails(String userName) {
+		UserDetail userDetail = userDetailList.stream().filter((p) -> p.getUser().getUserName().equals(userName))
+				.findFirst().orElse(null);
+		System.out.println("getUserDetails User Detail : " + userDetail);
+		displayUsers("getUserDetails".toUpperCase());
+		return userDetail;
+	}
+    
+    private void displayUsers(String string){
+    	System.out.println(string+"----------------users at servers-----------------");
+    	userDetailList.stream().forEach(u->System.out.println(u) );
     }
 
 }
