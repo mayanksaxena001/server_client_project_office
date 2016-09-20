@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 
 import com.clientfileupload.ClientUIMain;
 import com.clientfileupload.Loader;
+import com.util.Utility;
 
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.DoubleProperty;
@@ -39,14 +40,6 @@ import javafx.scene.paint.Color;
 @Qualifier("baseUIController")
 public class BaseUIController implements Initializable {
 
-    @FXML
-    TabPane tabPane;
-    
-    @FXML
-    Tab logIn;
-    
-    @FXML
-    Tab signUp;
     
     @FXML
     VBox centerVBox;
@@ -57,47 +50,46 @@ public class BaseUIController implements Initializable {
     @FXML
     BorderPane borderPane;
     
-    @Autowired
-    LoginUIController loginUIController;
-    
-    @Autowired
-    SignUpUIController signUpUIController;
-    
-    ObservableList<Node> list=FXCollections.observableArrayList();
-    
     @Override
     public void initialize(URL arg0, ResourceBundle arg1) {
 	try {
-	    logIn.setContent(Loader.getLoginScreen());
-	    signUp.setContent(Loader.getSignUpScreen());
+	    initComponents();
 	} catch (IOException e) {
-	    e.printStackTrace();
+	  Utility.reportError(e.getMessage());
 	}
-	initComponents();
-	list.addAll(centerVBox.getChildren());
     }
 
-	private void initComponents() {
-		// new Image(url)
-		Image image=new Image(ClientUIMain.class.getResourceAsStream("/image/pic_1.jpg"));
-		// new BackgroundSize(width, height, widthAsPercentage, heightAsPercentage, contain, cover)
-		BackgroundSize backgroundSize = new BackgroundSize(BackgroundSize.AUTO, BackgroundSize.AUTO, true, true, true, false);
-		// new BackgroundImage(image, repeatX, repeatY, position, size)
-		BackgroundImage backgroundImage = new BackgroundImage(image, BackgroundRepeat.ROUND, BackgroundRepeat.ROUND, BackgroundPosition.CENTER, backgroundSize);
-		// new Background(images...)
-		Background background = new Background(backgroundImage);
-		borderPane.setBackground(background);
-    	DoubleProperty doubleProperty = new SimpleDoubleProperty(0);
-        centerVBox.styleProperty().bind(Bindings
-                .concat("-fx-background-color: rgba(56, 176, 209, ")
-                .concat(doubleProperty)
-                .concat(");"));
-//        centerVBox.setEffect(new DropShadow(10, Color.AZURE));
+    private void initComponents() throws IOException {
+	Background background = getBackground("/image/pic_1.jpg");
+	borderPane.setBackground(background);
+	DoubleProperty doubleProperty = new SimpleDoubleProperty(0);
+	centerVBox.styleProperty().bind(
+		Bindings.concat("-fx-background-color: rgba(56, 176, 209, ")
+			.concat(doubleProperty).concat(");"));
+	// centerVBox.setEffect(new DropShadow(10, Color.AZURE));
 
-        Slider slider = new Slider(0, 1, .3);
-        doubleProperty.bind(slider.valueProperty());
-        bottomHBox.getChildren().addAll( slider);
-	}
+	Slider slider = new Slider(0, 1, .3);
+	doubleProperty.bind(slider.valueProperty());
+	loadStartScreen();
+	bottomHBox.getChildren().addAll(slider);
+    }
+
+    public Background getBackground(String path) {
+	// new Image(url)
+	Image image = new Image(
+		ClientUIMain.class.getResourceAsStream(path));
+	// new BackgroundSize(width, height, widthAsPercentage,
+	// heightAsPercentage, contain, cover)
+	BackgroundSize backgroundSize = new BackgroundSize(BackgroundSize.AUTO,
+		BackgroundSize.AUTO, true, true, true, false);
+	// new BackgroundImage(image, repeatX, repeatY, position, size)
+	BackgroundImage backgroundImage = new BackgroundImage(image,
+		BackgroundRepeat.ROUND, BackgroundRepeat.ROUND,
+		BackgroundPosition.CENTER, backgroundSize);
+	// new Background(images...)
+	Background background = new Background(backgroundImage);
+	return background;
+    }
     
     protected void loadDashBoardScreen() throws IOException {
 	centerVBox.getChildren().clear();
@@ -106,11 +98,11 @@ public class BaseUIController implements Initializable {
 	VBox.setVgrow(vbox, Priority.ALWAYS);
     }
     
-    protected void loadStartScreen(){
+    protected void loadStartScreen() throws IOException{
 	centerVBox.getChildren().clear();
-	loginUIController.reset();
-	signUpUIController.reset();
-	centerVBox.getChildren().addAll(list);
+	VBox vbox=(VBox) Loader.getCenterScreen();
+	centerVBox.getChildren().add(vbox);
+	VBox.setVgrow(vbox, Priority.ALWAYS);
     }
 
 }

@@ -16,6 +16,7 @@ public class Loader {
     private static final String DASHBOARD_SCREEN = "/fxml/FileUploadClientUI.fxml";
     private static final String SIGNUP_SCREEN = "/fxml/SignUpUI.fxml";
     private static final String BASEUI_SCREEN = "/fxml/BaseUI.fxml";
+    private static final String CENTERUI_SCREEN = "/fxml/CenterUI.fxml";
 
     public static Parent getLoginScreen() throws IOException {
 	return load(LOGIN_SCREEN);
@@ -31,6 +32,10 @@ public class Loader {
     
     public static Parent getBaseUIScreen() throws IOException {
 	return load(BASEUI_SCREEN);
+    }
+    
+    public static Parent getCenterScreen() throws IOException {
+	return load(CENTERUI_SCREEN);
     }
 
     private static Parent load(String path) {
