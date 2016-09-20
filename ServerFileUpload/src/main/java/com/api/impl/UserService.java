@@ -13,6 +13,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.api.UserServiceApi;
@@ -27,6 +28,9 @@ import com.util.UserDetail;
 public class UserService implements UserServiceApi {
     private static final List<User> userlist=new ArrayList<User>();
     private static final List<UserDetail> userDetailList=new ArrayList<UserDetail>();
+    
+    @Autowired
+    private ObjectMapper objectMapper;
     @PostConstruct
     private void init(){
 	System.out.println("Inside user service init");
@@ -48,7 +52,7 @@ public class UserService implements UserServiceApi {
     public Boolean findUserByName(HttpServletRequest request) {
 	User user=null;
 	try {
-	    user=new ObjectMapper().readValue(getStringFromInputStream(request.getInputStream()), User.class);
+	    user=objectMapper.readValue(getStringFromInputStream(request.getInputStream()), User.class);
 	}catch (Exception e) {
 	    e.printStackTrace();
 	    user=new User(null, null);
@@ -132,7 +136,7 @@ public class UserService implements UserServiceApi {
     private UserDetail getUserDetailFromJSon(HttpServletRequest request)
 	    throws IOException, JsonParseException, JsonMappingException {
 	String json=getStringFromInputStream(request.getInputStream());
-	UserDetail userDetail=new ObjectMapper().readValue(json.isEmpty()?"":json, UserDetail.class);
+	UserDetail userDetail=objectMapper.readValue(json.isEmpty()?"":json, UserDetail.class);
 	System.out.println("getUserDetailFromJSon User Detail : "+userDetail);
 	return userDetail;
     }
