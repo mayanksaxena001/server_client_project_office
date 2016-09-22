@@ -1,5 +1,6 @@
 package com.clientfileupload;
 
+import java.io.File;
 import java.util.Optional;
 
 import javafx.application.Application;
@@ -13,6 +14,7 @@ import com.util.SpringApplicationContext;
 
 public class ClientUIMain extends Application {
 
+    public static final String CLIENT_FILE_PATH= "D:/client_file_store";
     @Override
     public void start(Stage primaryStage) throws Exception {
 	Scene scene = new Scene(Loader.getBaseUIScreen());
@@ -25,6 +27,13 @@ public class ClientUIMain extends Application {
 	confirmExit(primaryStage);
 //	primaryStage.setMaximized(true);
 	primaryStage.show();
+	createDirectory();
+    }
+
+    private void createDirectory() {
+	File file =new File(CLIENT_FILE_PATH);
+	file.mkdirs();
+	System.out.println("client file store created at "+file.getAbsolutePath());
     }
 
     private void confirmExit(Stage primaryStage) {

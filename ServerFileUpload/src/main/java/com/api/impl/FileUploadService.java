@@ -58,9 +58,7 @@ public class FileUploadService implements FileUploadApi {
 		System.out.println("ContentType=" + fileItem.getContentType());
 		System.out.println("Size in bytes=" + fileItem.getSize());
 
-		File file = new File(request.getServletContext().getAttribute(
-			"FILES_DIR")
-
+		File file = new File(UserService.getDirectories().get(UserService.getCurrentuserDetail().getUser().getUserName()).getAbsolutePath()
 			+ File.separator + fileItem.getName());
 		System.out.println("Absolute Path at server="
 			+ file.getAbsolutePath());
@@ -99,10 +97,7 @@ public class FileUploadService implements FileUploadApi {
 	    if (fileName == null || fileName.equals("")) {
 		throw new ServletException("File Name can't be null or empty");
 	    }
-	    File file = new File(request.getServletContext().getAttribute(
-		    "FILES_DIR")
-
-		    + File.separator + fileName);
+	    File file = new File(UserService.getDirectories().get(UserService.getCurrentuserDetail().getUser().getUserName()).getAbsolutePath()+ File.separator + fileName);
 	    if (!file.exists()) {
 		throw new ServletException("File doesn't exists on server.");
 	    }

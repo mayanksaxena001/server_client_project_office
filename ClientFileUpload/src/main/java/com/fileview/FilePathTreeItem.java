@@ -17,7 +17,7 @@ import javafx.scene.image.ImageView;
 
 public class FilePathTreeItem extends TreeItem<String> {
 
-    public static Image folderCollapseImage = new Image(FilePathTreeItem.class.getResourceAsStream("/com/fileview/folder.png"));
+    public static Image folderCollapseImage = new Image(FilePathTreeItem.class.getResourceAsStream("/image/folder.png"));
     public static Image folderExpandImage = new Image( FilePathTreeItem.class.getResourceAsStream("/com/fileview/folder-open.png"));
     public static Image fileImage = new Image( FilePathTreeItem.class.getResourceAsStream("/com/fileview/text-x-generic.png"));
 

@@ -198,14 +198,13 @@ public class SignUpUIController implements Initializable {
 	    UserDetail userDetail = validate();
 	    if (button.getUserData().equals(OK_BUTTON)) {
 		loginService.updateUserDetails(userDetail);
-		fileUploadClientUIController.setCurrentUserDetail(userDetail);
 		Stage stage = (Stage) button.getScene().getWindow();
 		stage.close();
 	    } else if (button.getUserData().equals(REGISTER_BUTTON)) {
 		loginService.storeUserDetailToServer(userDetail,
-			URL_ENUM.STORE_USER_DETAILS.getUrl());
+			URL_ENUM.STORE_USER_DETAILS);
 		baseUIController.loadDashBoardScreen();
-		fileUploadClientUIController.setCurrentUserDetail(userDetail);
+		fileUploadClientUIController.updateUserDetail(userDetail);
 	    }
 	    event.consume();
 	} catch (Exception e) {

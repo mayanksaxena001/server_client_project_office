@@ -75,19 +75,16 @@
                <children>
                   <HBox alignment="CENTER_LEFT">
                      <children>
-                        <HBox HBox.hgrow="ALWAYS">
+                        <HBox spacing="10.0" HBox.hgrow="ALWAYS">
                            <children>
-                              <Button fx:id="previousButton" mnemonicParsing="false" onAction="#handlePreviousButtonClick" text="previous" />
-                           </children>
-                        </HBox>
-                        <HBox alignment="CENTER_RIGHT">
-                           <children>
-                              <Button fx:id="nextButton" mnemonicParsing="false" onAction="#handleNextButtonClick" text="next" />
+                              <Button fx:id="previousButton" mnemonicParsing="false" onAction="#handlePreviousButtonClick" styleClass="folder-view-button" text="previous" />
+                              <TextField fx:id="fileDirectoryTextField" editable="false" HBox.hgrow="ALWAYS" />
+                              <Button fx:id="nextButton" mnemonicParsing="false" onAction="#handleNextButtonClick" styleClass="folder-view-button" text="next" />
                            </children>
                         </HBox>
                      </children>
                   </HBox>
-                  <ScrollPane fx:id="scrollPane" maxHeight="600.0" maxWidth="850.0" VBox.vgrow="ALWAYS" />
+                  <ScrollPane fx:id="scrollPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="100.0" prefWidth="100.0" VBox.vgrow="ALWAYS" />
                </children>
             </VBox>
          </children>

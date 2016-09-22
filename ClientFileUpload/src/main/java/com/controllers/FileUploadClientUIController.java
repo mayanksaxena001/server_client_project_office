@@ -3,9 +3,8 @@ package com.controllers;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.text.DecimalFormat;
 import java.util.ResourceBundle;
-
-
 
 import javafx.event.ActionEvent;
 import javafx.event.Event;
@@ -21,28 +20,22 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
+import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
-
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
-
-
 import com.clientfileupload.Loader;
-import com.fileview.FilePathTreeItem;
 import com.service.LoginService;
 import com.service.ServerClient;
 import com.util.URL_ENUM;
@@ -58,9 +51,13 @@ public class FileUploadClientUIController implements Initializable{
     private static final Image DOCUMENT_FILE_IMAGE=new Image(FileUploadClientUIController.class.getResourceAsStream("/image/document.png"));
     private static final ImageView NEXT_BUTTON_IMAGE= new ImageView(new Image(FileUploadClientUIController.class.getResourceAsStream("/image/go-next.png")));
     private static final ImageView PREVIOUS_BUTTON_IMAGE= new ImageView(new Image(FileUploadClientUIController.class.getResourceAsStream("/image/go-previous.png")));
+    private static final DecimalFormat FORMATTER = new DecimalFormat("#.##");
     
     @FXML
     private TextField urlTextField;
+    
+    @FXML
+    private TextField fileDirectoryTextField;
     
     @FXML
     private Button uploadButton;
@@ -102,7 +99,6 @@ public class FileUploadClientUIController implements Initializable{
     public void initialize(URL arg0, ResourceBundle arg1) {
 	reset();
 	setCurrentUserLabel();
-	showFileView("D:\\AIG\\latest");
     }
 
     @FXML
@@ -127,8 +123,7 @@ public class FileUploadClientUIController implements Initializable{
     public void handleDownload(ActionEvent event){
 	DirectoryChooser chooser = new DirectoryChooser();
 	chooser.setTitle("Choose");
-//	File defaultDirectory = new File("c:/dev/javafx");
-//	chooser.setInitialDirectory(defaultDirectory);
+//	chooser.setInitialDirectory(LoginService.getDirectories().get(currentUserDetail.getUser().getUserName()));
 	File selectedDirectory = chooser.showDialog(null);
 	try {
 	    if(selectedDirectory!=null){
@@ -158,7 +153,6 @@ public class FileUploadClientUIController implements Initializable{
 	Stage stage=new Stage();
 	try {
 	    VBox vbox=(VBox) Loader.getSignUpScreen();
-//	    vbox.getStyleClass().add("pane");
 	    vbox.setBackground(baseUIController.getBackground("/image/pic.jpg"));
 	    Scene scene=new Scene(vbox);
 	    scene.getStylesheets().clear();
@@ -180,8 +174,10 @@ public class FileUploadClientUIController implements Initializable{
 	previousButton.setGraphic(PREVIOUS_BUTTON_IMAGE);
 	previousButton.setText("");
 	previousButton.setDisable(true);
+	nextButton.setDisable(true);
 	nextButton.setGraphic(NEXT_BUTTON_IMAGE);
 	nextButton.setText("");
+	fileDirectoryTextField.clear();
     }
     
     private void setCurrentUserLabel(){
@@ -197,13 +193,23 @@ public class FileUploadClientUIController implements Initializable{
         return currentUserDetail;
     }
 
-    public void setCurrentUserDetail(UserDetail currentUserDetail) {
+    public void updateUserDetail(UserDetail currentUserDetail) {
         this.currentUserDetail = currentUserDetail;
+        if(currentUserDetail!=null){
+            try {
+		loginService.setCurrentUserDetailAtServer(currentUserDetail);
+	    } catch (Exception e) {
+		e.printStackTrace();
+		Utility.reportError(e.getMessage());
+	    }
+        }
+	showFileView(LoginService.getDirectories().get(currentUserDetail.getUser().getUserName()).getAbsolutePath());
         setCurrentUserLabel();
     }
 
     private void showFileView(String path) {
 	File file =new File(path);
+	fileDirectoryTextField.setText(path);
    	GridPane gridPane = getGridPane(file);
    	scrollPane.setContent(gridPane);
        }
@@ -211,24 +217,18 @@ public class FileUploadClientUIController implements Initializable{
     private GridPane getGridPane(File file) {
 	File[] filelist = file.listFiles();
 	GridPane gridPane = new GridPane();
-	gridPane.setStyle("-fx-background-color: white;");
 	gridPane.setPadding(new Insets(10, 10, 10, 10));
 	gridPane.setHgap(10);
 	gridPane.setVgap(10);
 	int k = 0;
 	boolean value = false;
-	for (int i = 0; i < 5; i++) {
-	    ColumnConstraints columnConstraints = new ColumnConstraints();
-	    columnConstraints.setFillWidth(true);
-	    columnConstraints.setHgrow(Priority.ALWAYS);
-	    gridPane.getColumnConstraints().add(columnConstraints);
-	    for (int j = 0; j <6 ; j++) {
+	for (int i = 0; i < 10; i++) {
+	    for (int j = 0; j <8 ; j++) {
 		if (filelist.length != k) {
 		    File tempFile = filelist[k++];
 		    VBox vbox = getFolder(i, j, tempFile);
 		    gridPane.add(vbox, j, i);
 		} else {
-		    System.out.println(k);
 		    value = true;
 		    break;
 		}
@@ -244,13 +244,14 @@ public class FileUploadClientUIController implements Initializable{
 	HBox topHbox = new HBox();
 	HBox bottomHbox = new HBox();
 	VBox vbox=new VBox();
+	vbox.setPrefWidth(100);
+	vbox.setMaxWidth(100);
+	vbox.setMinWidth(100);
 	vbox.setPadding(new Insets(10,10,10,10));
-	vbox.setStyle("-fx-border-color: lightgrey;");
+	vbox.getStyleClass().clear();
+	vbox.getStyleClass().add("pane");
 	Label folderNameLabel=new Label(tempFile.getName());
-//	folderNameLabel.setMinWidth(Label.USE_PREF_SIZE);
-//	folderNameLabel.setPrefWidth(50);
-//	folderNameLabel.setMaxWidth(50);
-	folderNameLabel.setStyle(" -fx-text-fill: black;");
+	folderNameLabel.setTooltip(new Tooltip(tempFile.getName()));
 	if(tempFile.isDirectory()){
 	    topHbox.getChildren().add(new ImageView(FOLDER_IMAGE));
 	}else{
@@ -265,17 +266,21 @@ public class FileUploadClientUIController implements Initializable{
 		VBox vbox1=(VBox) event.getSource();
 		if(event.getEventType().equals(MouseEvent.MOUSE_CLICKED)){
 		    if(event.getClickCount()==1){
-			vbox1.setStyle("-fx-background-color: #B2EBF2;-fx-border-color: #B2EBF2;");
+			vbox1.getStyleClass().clear();
+			vbox1.getStyleClass().add("pane-selected");
 			vbox.requestFocus();
 		    }
 		    else if(event.getClickCount()>1){
-//   				vbox1.setStyle("-fx-background-color: white;-fx-border-color: lightGrey;");
 			File file =(File) vbox.getUserData();
 			if(file.isDirectory()){
-			    scrollPane.setContent(getGridPane(file));
+			    showFileView(file.getAbsolutePath());
+			    previousButton.setDisable(false);
+			    previousButton.setUserData(file);
+			    nextButton.setUserData(file);
 			}else{
+			    
 		      StringBuilder prop=new StringBuilder("File Properties : ");
-		      prop.append("\n File Size "+file.getTotalSpace());
+		      prop.append("\n File Size "+FORMATTER.format((file.length()/1024.00))+" KB");
 		      prop.append("\n File Path "+file.getAbsolutePath());
 		      Alert alert=new Alert(AlertType.INFORMATION);
 		      alert.setContentText(prop.toString());
@@ -288,7 +293,8 @@ public class FileUploadClientUIController implements Initializable{
 	});
 	vbox.focusedProperty().addListener((observable,  oldValue, newValue) -> {
 	    if(!newValue){
-		vbox.setStyle("-fx-background-color: white;-fx-border-color: lightGrey;");
+		vbox.getStyleClass().clear();
+		vbox.getStyleClass().add("pane");
 	   }
 	});
 	vbox.setFocusTraversable(true);
@@ -298,11 +304,27 @@ public class FileUploadClientUIController implements Initializable{
     
     @FXML
     public void handleNextButtonClick(Event event){
-	
+	Button button=(Button) event.getSource();
+	File file=(File) button.getUserData();
+	showFileView(file.getAbsolutePath());
+	nextButton.setDisable(true);
+	previousButton.setDisable(false);
+	previousButton.setUserData(file);
     }
     
     @FXML
     public void handlePreviousButtonClick(Event event){
-	
+	Button button=(Button) event.getSource();
+	File file=(File) button.getUserData();
+	showFileView(file.getParentFile().getAbsolutePath());
+	nextButton.setUserData(file);
+	if(file.getParentFile().getParentFile()!=null){
+	    nextButton.setDisable(false);
+	    previousButton.setDisable(false);
+	    previousButton.setUserData(file.getParentFile());
+	}else{
+	    previousButton.setDisable(true);
+	    nextButton.setDisable(true);
+	}
     }
 }

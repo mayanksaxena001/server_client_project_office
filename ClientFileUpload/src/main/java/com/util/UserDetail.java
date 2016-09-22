@@ -2,6 +2,8 @@ package com.util;
 
 import java.util.Date;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 public class UserDetail {
 
     String firstName;
@@ -119,5 +121,9 @@ public class UserDetail {
 		return "UserDetail [firstName=" + firstName + ", lastName=" + lastName + ", eMailId=" + eMailId
 				+ ", dateOfBirth=" + dateOfBirth + ", gender=" + gender + ", user=" + user + "]";
 	}
-
+	
+	@JsonIgnore
+	public String getUniqueName(){
+	    return this.getUser().getUserName()+"_"+this.hashCode();
+	}
 }

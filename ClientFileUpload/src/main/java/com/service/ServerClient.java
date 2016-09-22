@@ -12,7 +12,6 @@ import com.util.URL_ENUM;
 
 public class ServerClient {
 
-    private final static String USER_AGENT = "Mozilla/5.0";
     private static final int BUFFER_SIZE = 4096;
     public  static HttpURLConnection httpConnection=null;
     /**

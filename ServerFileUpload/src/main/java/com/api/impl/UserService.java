@@ -1,11 +1,14 @@
 package com.api.impl;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
@@ -18,35 +21,36 @@ import org.springframework.stereotype.Service;
 
 import com.api.UserServiceApi;
 import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.servletlistener.FileLocationContextListener;
 import com.util.User;
 import com.util.UserDetail;
 
 @Service
 public class UserService implements UserServiceApi {
-    private static final List<User> userlist=new ArrayList<User>();
-    private static final List<UserDetail> userDetailList=new ArrayList<UserDetail>();
-    
+    private static final Set<User> userSet=new HashSet<User>();
+    private static final Set<UserDetail> userDetailSet=new HashSet<UserDetail>();
+    private static Map<String ,File> directories=new HashMap<String, File>();
+    private static UserDetail currentuserDetail=new UserDetail();
     @Autowired
     private ObjectMapper objectMapper;
     @PostConstruct
     private void init(){
 	System.out.println("Inside user service init");
 	User user1=new User("Admin","#Admin1#");
-	userlist.add(user1);
+	userSet.add(user1);
 	UserDetail userDetail=new UserDetail();
 	userDetail.setUser(user1);
-	userDetailList.add(userDetail);
+	addFolderDirectory(userDetail);
 	User user2=new User("Mayank","#Mayank1#");
-	userlist.add(user2);
+	userSet.add(user2);
 	userDetail=new UserDetail();
 	userDetail.setUser(user2);
-	userDetailList.add(userDetail);
+	addFolderDirectory(userDetail);
     }
-    public List<User> getUsers() {
-	return userlist;
+    public Set<User> getUsers() {
+	return userSet;
     }
 
     public Boolean findUserByName(HttpServletRequest request) {
@@ -57,7 +61,7 @@ public class UserService implements UserServiceApi {
 	    e.printStackTrace();
 	    user=new User(null, null);
 	}
-	return userlist.contains(user);
+	return userSet.contains(user);
     }
     
     private  String getStringFromInputStream(InputStream is) {
@@ -91,8 +95,8 @@ public class UserService implements UserServiceApi {
 	try {
 	    UserDetail userDetail = getUserDetailFromJSon(request);
 	    if(userDetail!=null){
-		userDetailList.add(userDetail);
-		userlist.add(userDetail.getUser());
+		addFolderDirectory(userDetail);
+		userSet.add(userDetail.getUser());
 		displayUsers("storeUserDetailsOnServer".toUpperCase());
 	    }else{
 		 return Response.status(Status.NO_CONTENT).type(MediaType.APPLICATION_JSON)
@@ -111,8 +115,8 @@ public class UserService implements UserServiceApi {
 	try {
 	    UserDetail userDetail = getUserDetailFromJSon(request);
 	    if(userDetail!=null){
-		if(userlist.contains(userDetail.getUser())){
-		    UserDetail updateUserDetail=userDetailList.stream().filter(p->p.getUser().equals(userDetail.getUser())).findFirst().get();
+		if(userSet.contains(userDetail.getUser())){
+		    UserDetail updateUserDetail=userDetailSet.stream().filter(p->p.getUser().equals(userDetail.getUser())).findFirst().get();
 		    updateUserDetail.setFirstName(userDetail.getFirstName());
 		    updateUserDetail.setLastName(userDetail.getLastName());
 		    updateUserDetail.seteMailId(userDetail.geteMailId());
@@ -141,8 +145,22 @@ public class UserService implements UserServiceApi {
 	return userDetail;
     }
     
+    @Override
+    public Response setCurrentUserDetailsOnServer(HttpServletRequest request) {
+	try {
+	    currentuserDetail=getUserDetailFromJSon(request);
+	    System.out.println("Current user ".toUpperCase()+ currentuserDetail.toString());
+	} catch (IOException e) {
+	    e.printStackTrace();
+	    return Response.status(500).type(MediaType.APPLICATION_JSON)
+		    .entity(e.getMessage()).build();
+	}
+	return Response.ok().type(MediaType.APPLICATION_JSON)
+		    .entity("Successfully Set user").build();
+    }
+    
 	public UserDetail getUserDetails(String userName) {
-		UserDetail userDetail = userDetailList.stream().filter((p) -> p.getUser().getUserName().equals(userName))
+		UserDetail userDetail = userDetailSet.stream().filter((p) -> p.getUser().getUserName().equals(userName))
 				.findFirst().orElse(null);
 		System.out.println("getUserDetails User Detail : " + userDetail);
 		displayUsers("getUserDetails".toUpperCase());
@@ -151,7 +169,23 @@ public class UserService implements UserServiceApi {
     
     private void displayUsers(String string){
     	System.out.println(string+"----------------users at servers-----------------");
-    	userDetailList.stream().forEach(u->System.out.println(u) );
+    	userDetailSet.stream().forEach(u->System.out.println(u) );
+    }
+    
+    private void addFolderDirectory(UserDetail userDetail){
+	 if(userDetailSet.add(userDetail)){
+	     File file=new File(FileLocationContextListener.SERVER_FILE_PATH+File.separator+userDetail.getUniqueName());
+	     if(!file.exists())file.mkdirs();
+	     directories.put(userDetail.getUser().getUserName(), file);
+	     System.out.println("User directory created".toUpperCase()+file.getAbsolutePath());
+	 }
     }
 
+    public static Map<String, File> getDirectories() {
+	return directories;
+    }
+    
+    public static UserDetail getCurrentuserDetail() {
+	return currentuserDetail;
+    }
 }

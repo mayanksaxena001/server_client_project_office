@@ -1,6 +1,6 @@
 package com.api;
 
-import java.util.List;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
@@ -22,7 +22,7 @@ public interface UserServiceApi {
     @GET
     @Path("/users")
     @Produces(MediaType.APPLICATION_JSON)
-    List<User> getUsers();
+    Set<User> getUsers();
     
     @GET
     @Path("/users/details/{userName}")
@@ -43,4 +43,9 @@ public interface UserServiceApi {
     @Path("/users/update")
     @Consumes(MediaType.APPLICATION_JSON)
     Response updateUserDetailsOnServer(@Context HttpServletRequest request);
+    
+    @POST
+    @Path("/users/current")
+    @Consumes(MediaType.APPLICATION_JSON)
+    Response setCurrentUserDetailsOnServer(@Context HttpServletRequest request);
 }

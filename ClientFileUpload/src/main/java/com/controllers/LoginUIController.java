@@ -67,7 +67,7 @@ public class LoginUIController implements Initializable {
 		try {
 			if (Validate()) {
 				baseUIController.loadDashBoardScreen();
-				fileUploadClientUIController.setCurrentUserDetail(currentUserDetail);
+				fileUploadClientUIController.updateUserDetail(currentUserDetail);
 			} else {
 				passwordTextField.clear();
 				Alert alert = new Alert(AlertType.ERROR);

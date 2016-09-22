@@ -90,7 +90,7 @@ public class MultipartUtility {
         writer.append(LINE_FEED).flush();
 	    Files.copy(uploadFile.toPath(), outputStream);
 	    outputStream.flush();
-        writer.append(LINE_FEED).flush();;
+        writer.append(LINE_FEED).flush();
         writer.append("--" + boundary + "--").append(LINE_FEED).flush();
        
     }
