@@ -44,7 +44,6 @@ public class LoginService {
 
     @PostConstruct
     public void init() {
-	// getUsers();
 	System.out.println("Inside Login service init");
     }
 
@@ -79,31 +78,6 @@ public class LoginService {
 	return getUsers().contains(user);
     }
 
-    private static String getStringFromInputStream(InputStream is) {
-	BufferedReader br = null;
-	StringBuilder sb = new StringBuilder();
-
-	String line;
-	try {
-	    br = new BufferedReader(new InputStreamReader(is));
-	    while ((line = br.readLine()) != null) {
-		sb.append(line + "\n");
-	    }
-
-	} catch (IOException e) {
-	    e.printStackTrace();
-	} finally {
-	    if (br != null) {
-		try {
-		    br.close();
-		} catch (IOException e) {
-		    e.printStackTrace();
-		}
-	    }
-	}
-	return sb.toString().trim();
-    }
-
     public void storeUserDetailToServer(UserDetail userDetail, URL_ENUM enumID)
 	    throws Exception {
 	String userURL = enumID.getUrl();
@@ -123,7 +97,7 @@ public class LoginService {
 	    if (responseCode != HttpURLConnection.HTTP_OK) {
 		errors.append("Error storing user details\n");
 		System.out.println("Error storing user details" + responseCode);
-	    } else if(enumID.equals(URL_ENUM.STORE_USER_DETAILS)) {
+	    } else if (enumID.equals(URL_ENUM.STORE_USER_DETAILS)) {
 		addFolderDirectory(userDetail);
 	    }
 	} catch (MalformedURLException e) {
@@ -149,8 +123,7 @@ public class LoginService {
     }
 
     public void updateUserDetails(UserDetail userDetail) throws Exception {
-	storeUserDetailToServer(userDetail,
-		URL_ENUM.UPDATE_USER_DETAILS);
+	storeUserDetailToServer(userDetail, URL_ENUM.UPDATE_USER_DETAILS);
     }
 
     public UserDetail getUserDetail(String fileName) throws JsonParseException,
@@ -168,22 +141,55 @@ public class LoginService {
 	httpConnection.disconnect();
 	return userDetail;
     }
-    
-    private void addFolderDirectory(UserDetail userDetail){
-	 if(userDetailSet.add(userDetail)){
-	     File file=new File(ClientUIMain.CLIENT_FILE_PATH+File.separator+userDetail.getUniqueName());
-	     if(!file.exists())file.mkdirs();
-	     directories.put(userDetail.getUser().getUserName(), file);
-	     System.out.println("User directory created ".toUpperCase()+file.getAbsolutePath());
-	 }
-   }
-    
+
+    public void setCurrentUserDetailAtServer(UserDetail currentUserDetail)
+	    throws Exception {
+	storeUserDetailToServer(currentUserDetail,
+		URL_ENUM.SET_CURRENT_USER_AT_SERVER);
+    }
+
     public static Map<String, File> getDirectories() {
 	return directories;
     }
 
-    public void setCurrentUserDetailAtServer(UserDetail currentUserDetail) throws Exception {
-	storeUserDetailToServer(currentUserDetail,
-		URL_ENUM.SET_CURRENT_USER_AT_SERVER);
+    private void addFolderDirectory(UserDetail userDetail) {
+	if (userDetailSet.add(userDetail)) {
+	    File file = new File(ClientUIMain.CLIENT_FILE_PATH + File.separator
+		    + userDetail.getUniqueName());
+	    if (!file.exists())
+		file.mkdirs();
+	    directories.put(userDetail.getUser().getUserName(), file);
+	    System.out.println("User directory created ".toUpperCase()
+		    + file.getAbsolutePath());
+	}
+    }
+    
+    public File getCurrentUserDirectory(UserDetail currentUserDetail){
+   	return currentUserDetail!=null?directories.get(currentUserDetail.getUser().getUserName()):null;
+       }
+
+    public static String getStringFromInputStream(InputStream is) {
+	BufferedReader br = null;
+	StringBuilder sb = new StringBuilder();
+
+	String line;
+	try {
+	    br = new BufferedReader(new InputStreamReader(is));
+	    while ((line = br.readLine()) != null) {
+		sb.append(line + "\n");
+	    }
+
+	} catch (IOException e) {
+	    e.printStackTrace();
+	} finally {
+	    if (br != null) {
+		try {
+		    br.close();
+		} catch (IOException e) {
+		    e.printStackTrace();
+		}
+	    }
+	}
+	return sb.toString().trim();
     }
 }

@@ -17,7 +17,7 @@
                <children>
                   <Label text="Welcome">
                      <font>
-                        <Font name="System Italic" size="14.0" />
+                        <Font name="System Bold Italic" size="18.0" />
                      </font>
                   </Label>
                   <Label fx:id="userNameLabel" text="Label">
@@ -39,17 +39,7 @@
          <children>
             <VBox>
                <children>
-                  <HBox alignment="CENTER_LEFT" prefHeight="50.0" spacing="10.0">
-                     <children>
-                        <Label text="URL">
-                           <font>
-                              <Font name="System Bold" size="14.0" />
-                           </font>
-                        </Label>
-                        <TextField fx:id="urlTextField" HBox.hgrow="ALWAYS" />
-                     </children>
-                  </HBox>
-                  <HBox alignment="CENTER_LEFT" prefHeight="50.0" spacing="10.0">
+                  <HBox alignment="CENTER_LEFT" spacing="10.0">
                      <children>
                         <Label text="Click to upload a file to server">
                            <font>
@@ -61,12 +51,11 @@
                   </HBox>
                   <HBox alignment="CENTER_LEFT" prefHeight="50.0" spacing="10.0">
                      <children>
-                        <Label text="Click to download a file from server">
+                        <Label text="Right click on the file for options">
                            <font>
                               <Font name="System Bold" size="14.0" />
                            </font>
                         </Label>
-                        <Button fx:id="downloadButton" mnemonicParsing="false" onAction="#handleDownload" text="Download" />
                      </children>
                   </HBox>
                </children>

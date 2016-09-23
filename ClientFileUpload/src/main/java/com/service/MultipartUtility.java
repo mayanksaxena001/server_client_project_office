@@ -38,6 +38,7 @@ public class MultipartUtility {
         // creates a unique boundary based on time stamp
         boundary = "===" + System.currentTimeMillis() + "===";
         URL url = new URL(requestURL);
+        System.out.println(requestURL);
         httpConnection = (HttpURLConnection) url.openConnection();
         httpConnection.setUseCaches(false);
         httpConnection.setDoInput(true);

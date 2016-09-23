@@ -6,7 +6,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
+
+import org.json.JSONArray;
+import org.json.JSONException;
 
 import com.util.URL_ENUM;
 
@@ -23,6 +27,7 @@ public class ServerClient {
     public static void downloadFile(String name, String saveDir)
 	    throws IOException {
 	String fileURL = URL_ENUM.DOWNLOAD.getUrl() + "?fileName=" + name;
+	System.out.println(fileURL);
 	URL url = new URL(fileURL);
 	httpConnection = (HttpURLConnection) url.openConnection();
 	int responseCode = httpConnection.getResponseCode();
@@ -70,8 +75,7 @@ public class ServerClient {
 
 	    System.out.println("File downloaded at " + saveFilePath);
 	} else {
-	    System.out
-		    .println("No file to download. Server replied HTTP code: "
+	    throw new RuntimeException("No file to download. Server replied HTTP code: "
 			    + responseCode);
 	}
 	httpConnection.disconnect();
@@ -85,8 +89,30 @@ public class ServerClient {
 	System.out.println("SERVER REPLIED:");
 	for (String line : response) {
 	    System.out.println("Upload Files Response:::\n" + line);
-	    // get your server response here.
 	}
+    }
+    
+    public static List<String> getCurrentUserDirectories() throws IOException, JSONException{
+	List<String> list=new ArrayList<String>();
+	String userURL = URL_ENUM.GET_USER_DIRECTORIES.getUrl();
+	URL url = new URL(userURL);
+	System.out.println(userURL);
+	httpConnection = (HttpURLConnection) url.openConnection();
+	int responseCode = httpConnection.getResponseCode();
+	if (responseCode == HttpURLConnection.HTTP_OK) {
+	    InputStream inputStream = httpConnection.getInputStream();
+	    JSONArray array = new JSONArray(
+		    LoginService.getStringFromInputStream(inputStream));
+	    for (int i = 0; i < array.length(); i++) {
+		String json = array.getString(i);
+		list.add(json);
+	    }
+	} else {
+	    System.out.println("Error calling File service " + responseCode);
+	    throw new RuntimeException("Error calling File service " + responseCode);
+	}
+	httpConnection.disconnect();
+	return list;
     }
 
 //    private static void sendGet(String fileName) throws MalformedURLException,

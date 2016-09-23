@@ -3,17 +3,17 @@ package com.api.impl;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
-import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
-import javax.ws.rs.Path;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -21,12 +21,18 @@ import javax.ws.rs.core.Response;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.api.FileUploadApi;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Service("fileUploadService")
 public class FileUploadService implements FileUploadApi {
+    
+    @Autowired
+    private ObjectMapper objectMapper;
+    
     private ServletFileUpload uploader = null;
 
     @PostConstruct
@@ -36,8 +42,6 @@ public class FileUploadService implements FileUploadApi {
 	this.uploader = new ServletFileUpload(fileFactory);
     }
 
-    @Path("/upload/")
-    @POST
     public Response upload(@Context HttpServletRequest request)
 	    throws ServletException, IOException {
 	if (!ServletFileUpload.isMultipartContent(request)) {
@@ -47,7 +51,6 @@ public class FileUploadService implements FileUploadApi {
 
 	// response.setContentType("text/html");
 	StringBuilder out = new StringBuilder();
-	out.append("<html><head></head><body>");
 	try {
 	    List<FileItem> fileItemsList = uploader.parseRequest(request);
 	    Iterator<FileItem> fileItemsIterator = fileItemsList.iterator();
@@ -58,17 +61,12 @@ public class FileUploadService implements FileUploadApi {
 		System.out.println("ContentType=" + fileItem.getContentType());
 		System.out.println("Size in bytes=" + fileItem.getSize());
 
-		File file = new File(UserService.getDirectories().get(UserService.getCurrentuserDetail().getUser().getUserName()).getAbsolutePath()
-			+ File.separator + fileItem.getName());
+		File file = new File(UserService.getCurrentUserDirectory().getAbsolutePath());
 		System.out.println("Absolute Path at server="
 			+ file.getAbsolutePath());
 		fileItem.write(file);
 		out.append("File " + fileItem.getName()
 			+ " uploaded successfully.");
-		out.append("<br>");
-		out.append("<a href=\"UploadDownloadFileServlet?fileName="
-			+ fileItem.getName() + "\">Download "
-			+ new File(fileItem.getName()).getName() + "</a>");
 	    }
 	} catch (Exception e) {
 	    out.append(e.getMessage());
@@ -82,8 +80,6 @@ public class FileUploadService implements FileUploadApi {
 		.entity(out).build();
     }
 
-    @Path("/download/")
-    @GET
     public Response download(@Context HttpServletRequest request)
 	    throws IOException, ServletException {
 	String fileName = request.getParameter("fileName");
@@ -97,8 +93,8 @@ public class FileUploadService implements FileUploadApi {
 	    if (fileName == null || fileName.equals("")) {
 		throw new ServletException("File Name can't be null or empty");
 	    }
-	    File file = new File(UserService.getDirectories().get(UserService.getCurrentuserDetail().getUser().getUserName()).getAbsolutePath()+ File.separator + fileName);
-	    if (!file.exists()) {
+	    File file = searchFileOnUserDirectory(UserService.getCurrentUserDirectory().getAbsolutePath(),fileName);
+	    if (file==null) {
 		throw new ServletException("File doesn't exists on server.");
 	    }
 	    System.out.println("File location on server::"
@@ -108,23 +104,6 @@ public class FileUploadService implements FileUploadApi {
 	    len = (int) file.length();
 	    header = "Content-Disposition";
 	    headerValue = "attachment; filename=\"" + fileName + "\"";
-	    // ServletContext ctx = request.getServletContext();
-	    // String mimeType = ctx.getMimeType(file.getAbsolutePath());
-	    // response.setContentType(mimeType != null ? mimeType
-	    // : "application/octet-stream");
-	    // response.setContentLength((int) file.length());
-	    // response.setHeader("Content-Disposition",
-	    // "attachment; filename=\""
-	    // + fileName + "\"");
-	    // OutputStream os = response.;
-	    // byte[] bufferData = new byte[1024];
-	    // int read = 0;
-	    // while ((read = fis.read(bufferData)) != -1) {
-	    // os.write(bufferData, 0, read);
-	    // }
-	    // os.flush();
-	    // os.close();
-	    // fis.close();
 	} catch (Exception e) {
 	    StringBuilder out = new StringBuilder();
 	    out.append(e.getMessage());
@@ -137,5 +116,60 @@ public class FileUploadService implements FileUploadApi {
 	return Response.ok().header(header, headerValue)
 		.header("Content-Length", len).type(type).entity(fis).build();
 
+    }
+
+    private File searchFileOnUserDirectory(String absolutePath, String fileName) {
+	File file=new File(absolutePath);
+	return searchFile(file,fileName);
+    }
+
+    private File searchFile(File file, String fileName) {
+	File files[] = file.listFiles();
+	for (File _file : files) {
+	    if (_file.isDirectory()) {
+		searchFile(_file, fileName);
+	    } else {
+		if (file.getName().equals(fileName)) {
+		    return _file;
+		}
+	    }
+	}
+	return null;
+    }
+
+    @Override
+    public List<String> fileDirectory() {
+	List<String> list=new ArrayList<String>();
+	File file=new File(UserService.getCurrentUserDirectory().getAbsolutePath());
+	getFiles(list, file);
+	System.out.println("Current user directory sent to client");
+	return list;
+    }
+
+    private void getFiles(List<String> list, File file) {
+	File files[]=file.listFiles();
+	for(File _file:files){
+	    if(_file.isDirectory()){
+		 list.add(getString(_file.getAbsolutePath()+File.separator));
+		getFiles(list, _file);
+	    }else{
+		list.add(getString(_file.getAbsolutePath()));
+	    }
+	}
+    }
+    
+    private String getString(String str) {
+	String folderName=UserService.getCurrentUserDetail().getUniqueName();
+	return str.substring(str.lastIndexOf(folderName+File.separator)+folderName.length(), str.length());
+    }
+
+    public static void main(String[] args) throws IOException {
+//	FileUploadService fileUploadService=new FileUploadService();
+//	for(String str:fileUploadService.fileDirectory()){
+//	    System.out.println("Files "+ str);
+//	}
+	String str="D:\\mayank\\saxena\\21\\name\\age.txt";
+	System.out.println(str.substring(0,str.lastIndexOf(File.separator)));
+	System.out.println(Files.probeContentType(Paths.get(str)));
     }
 }

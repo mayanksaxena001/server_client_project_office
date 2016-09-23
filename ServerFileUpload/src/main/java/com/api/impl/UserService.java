@@ -32,7 +32,7 @@ public class UserService implements UserServiceApi {
     private static final Set<User> userSet=new HashSet<User>();
     private static final Set<UserDetail> userDetailSet=new HashSet<UserDetail>();
     private static Map<String ,File> directories=new HashMap<String, File>();
-    private static UserDetail currentuserDetail=new UserDetail();
+    private static  UserDetail currentUserDetail=null;
     @Autowired
     private ObjectMapper objectMapper;
     @PostConstruct
@@ -64,29 +64,26 @@ public class UserService implements UserServiceApi {
 	return userSet.contains(user);
     }
     
-    private  String getStringFromInputStream(InputStream is) {
-
+    private String getStringFromInputStream(InputStream is) {
+	
 	BufferedReader br = null;
 	StringBuilder sb = new StringBuilder();
-
 	String line;
 	try {
-
-		br = new BufferedReader(new InputStreamReader(is));
-		while ((line = br.readLine()) != null) {
-			sb.append(line+"\n");
-		}
-
+	    br = new BufferedReader(new InputStreamReader(is));
+	    while ((line = br.readLine()) != null) {
+		sb.append(line + "\n");
+	    }
 	} catch (IOException e) {
-		e.printStackTrace();
+	    e.printStackTrace();
 	} finally {
-		if (br != null) {
-			try {
-				br.close();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+	    if (br != null) {
+		try {
+		    br.close();
+		} catch (IOException e) {
+		    e.printStackTrace();
 		}
+	    }
 	}
 	return sb.toString().trim();
     }
@@ -148,8 +145,8 @@ public class UserService implements UserServiceApi {
     @Override
     public Response setCurrentUserDetailsOnServer(HttpServletRequest request) {
 	try {
-	    currentuserDetail=getUserDetailFromJSon(request);
-	    System.out.println("Current user ".toUpperCase()+ currentuserDetail.toString());
+	    currentUserDetail=getUserDetailFromJSon(request);
+	    System.out.println("Current user ".toUpperCase()+ currentUserDetail.toString());
 	} catch (IOException e) {
 	    e.printStackTrace();
 	    return Response.status(500).type(MediaType.APPLICATION_JSON)
@@ -185,7 +182,11 @@ public class UserService implements UserServiceApi {
 	return directories;
     }
     
-    public static UserDetail getCurrentuserDetail() {
-	return currentuserDetail;
+    public static File getCurrentUserDirectory(){
+	return currentUserDetail!=null?directories.get(currentUserDetail.getUser().getUserName()):null;
+    }
+    
+    public static UserDetail getCurrentUserDetail(){
+	return currentUserDetail;
     }
 }
