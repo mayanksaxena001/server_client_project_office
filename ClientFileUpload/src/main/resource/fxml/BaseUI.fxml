@@ -9,15 +9,15 @@
       <VBox fx:id="centerVBox" alignment="CENTER" minHeight="-Infinity" minWidth="-Infinity" BorderPane.alignment="CENTER" />
    </center>
    <top>
-      <HBox minHeight="100.0" BorderPane.alignment="CENTER" />
+      <HBox BorderPane.alignment="CENTER" />
    </top>
    <left>
-      <HBox minWidth="100.0" BorderPane.alignment="CENTER" />
+      <HBox BorderPane.alignment="CENTER" />
    </left>
    <right>
-      <HBox minWidth="100.0" BorderPane.alignment="CENTER" />
+      <HBox BorderPane.alignment="CENTER" />
    </right>
    <bottom>
-      <HBox fx:id="bottomHBox" alignment="CENTER" minHeight="100.0" BorderPane.alignment="CENTER" />
+      <HBox fx:id="bottomHBox" alignment="CENTER" BorderPane.alignment="CENTER" />
    </bottom>
 </BorderPane>

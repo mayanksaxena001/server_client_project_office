@@ -14,6 +14,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.Path;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -42,6 +43,8 @@ public class FileUploadService implements FileUploadApi {
 	this.uploader = new ServletFileUpload(fileFactory);
     }
 
+    @Path("/upload/")
+    @POST	
     public Response upload(@Context HttpServletRequest request)
 	    throws ServletException, IOException {
 	if (!ServletFileUpload.isMultipartContent(request)) {
@@ -61,7 +64,8 @@ public class FileUploadService implements FileUploadApi {
 		System.out.println("ContentType=" + fileItem.getContentType());
 		System.out.println("Size in bytes=" + fileItem.getSize());
 
-		File file = new File(UserService.getCurrentUserDirectory().getAbsolutePath());
+		String filePath=UserService.getCurrentUserDirectory().getAbsolutePath()+"/"+fileItem.getName();
+		File file = new File(filePath);;
 		System.out.println("Absolute Path at server="
 			+ file.getAbsolutePath());
 		fileItem.write(file);
@@ -71,15 +75,15 @@ public class FileUploadService implements FileUploadApi {
 	} catch (Exception e) {
 	    out.append(e.getMessage());
 	    out.append("Exception in uploading file.");
-	    out.append("</body></html>");
 	    return Response.status(500).type(MediaType.APPLICATION_JSON)
 		    .entity(out).build();
 	}
-	out.append("</body></html>");
 	return Response.status(200).type(MediaType.APPLICATION_JSON)
 		.entity(out).build();
     }
 
+    @Path("/download/")
+    @GET
     public Response download(@Context HttpServletRequest request)
 	    throws IOException, ServletException {
 	String fileName = request.getParameter("fileName");
@@ -129,7 +133,7 @@ public class FileUploadService implements FileUploadApi {
 	    if (_file.isDirectory()) {
 		searchFile(_file, fileName);
 	    } else {
-		if (file.getName().equals(fileName)) {
+		if (_file.getName().equals(fileName)) {
 		    return _file;
 		}
 	    }
@@ -140,9 +144,11 @@ public class FileUploadService implements FileUploadApi {
     @Override
     public List<String> fileDirectory() {
 	List<String> list=new ArrayList<String>();
-	File file=new File(UserService.getCurrentUserDirectory().getAbsolutePath());
-	getFiles(list, file);
-	System.out.println("Current user directory sent to client");
+	File file=UserService.getCurrentUserDirectory();
+	if(file!=null){
+	    getFiles(list, file);
+	    System.out.println("Current user directory sent to client");
+	}
 	return list;
     }
 

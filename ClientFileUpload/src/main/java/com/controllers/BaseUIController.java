@@ -19,6 +19,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.Slider;
 import javafx.scene.control.Tab;
@@ -61,6 +62,7 @@ public class BaseUIController implements Initializable {
 
     private void initComponents() throws IOException {
 	Background background = getBackground("/image/pic_1.jpg");
+	borderPane.setPadding(new Insets(50, 50, 50, 50));
 	borderPane.setBackground(background);
 	DoubleProperty doubleProperty = new SimpleDoubleProperty(0);
 	centerVBox.styleProperty().bind(

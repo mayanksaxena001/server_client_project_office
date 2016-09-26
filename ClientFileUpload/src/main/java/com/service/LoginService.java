@@ -156,8 +156,15 @@ public class LoginService {
 	if (userDetailSet.add(userDetail)) {
 	    File file = new File(ClientUIMain.CLIENT_FILE_PATH + File.separator
 		    + userDetail.getUniqueName());
-	    if (!file.exists())
+	    if (!file.exists()){
 		file.mkdirs();
+	    }else{
+		if(file.delete()){
+		    System.out.println("User Directory ".toUpperCase()+" "+file.getAbsolutePath()+" Deleted");
+		}else{
+		    System.out.println("unable to delete directory ".toUpperCase()+file.getAbsolutePath());
+		}
+	    }
 	    directories.put(userDetail.getUser().getUserName(), file);
 	    System.out.println("User directory created ".toUpperCase()
 		    + file.getAbsolutePath());

@@ -10,6 +10,9 @@ import java.text.DecimalFormat;
 import java.util.List;
 import java.util.ResourceBundle;
 
+import javafx.beans.binding.Bindings;
+import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.SimpleDoubleProperty;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.fxml.FXML;
@@ -25,12 +28,14 @@ import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.control.Slider;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -108,13 +113,20 @@ public class FileUploadClientUIController implements Initializable{
 	        if (currentSelectedFile != null) {
 	           try {
 		    ServerClient.uploadFile(currentSelectedFile);
-		} catch (IOException e) {
+		    updateFolderView();
+		} catch (IOException |JSONException e) {
 		    Alert alert = new Alert(AlertType.NONE,"Error uploading File!!", ButtonType.OK);
                     alert.setTitle("Error");
                     alert.showAndWait();
                     e.printStackTrace();
 		}
 	        }
+    }
+
+    private void updateFolderView() throws IOException, JSONException {
+	mapCurrentUserDirectoryOnClient();
+	String path=LoginService.getDirectories().get(currentUserDetail.getUser().getUserName()).getAbsolutePath();
+	showFileView(path);
     }
     
     @FXML
@@ -132,8 +144,23 @@ public class FileUploadClientUIController implements Initializable{
 	Stage stage=new Stage();
 	try {
 	    VBox vbox=(VBox) Loader.getSignUpScreen();
-	    vbox.setBackground(baseUIController.getBackground("/image/pic.jpg"));
-	    Scene scene=new Scene(vbox);
+	    BorderPane borderPane = new BorderPane();
+	    borderPane.setPadding(new Insets(50, 50, 50, 50));
+	    borderPane.setCenter(vbox);
+	    borderPane.setBackground(baseUIController.getBackground("/image/pic.jpg"));
+	    vbox.getStyleClass().clear();
+	    DoubleProperty doubleProperty = new SimpleDoubleProperty(0);
+	    vbox.styleProperty().bind(
+			Bindings.concat("-fx-background-color: rgba(56, 176, 209, ")
+				.concat(doubleProperty).concat(");"));
+
+		Slider slider = new Slider(0, 1, .3);
+		doubleProperty.bind(slider.valueProperty());
+		HBox hBox=new HBox();
+		hBox.getChildren().add(slider);
+		hBox.setAlignment(Pos.CENTER);
+		borderPane.setBottom(hBox);
+	    Scene scene=new Scene(borderPane);
 	    scene.getStylesheets().clear();
 	    scene.getStylesheets().add("/stylesheet/app.css");
 	    stage.setScene(scene);
@@ -157,12 +184,11 @@ public class FileUploadClientUIController implements Initializable{
         if(currentUserDetail!=null){
             try {
 		loginService.setCurrentUserDetailAtServer(currentUserDetail);
-		mapCurrentUserDirectoryOnClient();
+		updateFolderView();
 	    } catch (Exception e) {
 		e.printStackTrace();
 		Utility.reportError(e.getMessage());
 	    }
-            showFileView(LoginService.getDirectories().get(currentUserDetail.getUser().getUserName()).getAbsolutePath());
             setCurrentUserLabel();
         }
     }
@@ -211,7 +237,7 @@ public class FileUploadClientUIController implements Initializable{
 		ServerClient.downloadFile(fileName, selectedDirectory.getAbsolutePath());
 	    }
 	    reset();
-	} catch (IOException e) {
+	} catch (Exception e) {
 	    Alert alert = new Alert(AlertType.NONE,"Error downloading File!!", ButtonType.OK);
             alert.setTitle("Error");
             alert.showAndWait();

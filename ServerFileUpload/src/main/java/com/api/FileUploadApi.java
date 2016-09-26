@@ -15,15 +15,11 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 @Path("/file")
-@Consumes(MediaType.MULTIPART_FORM_DATA)
 public interface FileUploadApi {
 
-    @Path("/upload")
-    @POST
+    @Consumes(MediaType.MULTIPART_FORM_DATA)
     public Response upload(@Context HttpServletRequest request) throws ServletException, IOException ;
     
-    @Path("/download")
-    @GET
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
     public Response download(@Context HttpServletRequest request) throws IOException, ServletException;
     
