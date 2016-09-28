@@ -26,7 +26,7 @@ import com.clientfileupload.Loader;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.service.LoginService;
+import com.service.Service;
 import com.util.User;
 import com.util.UserDetail;
 import com.util.Utility;
@@ -50,7 +50,7 @@ public class LoginUIController implements Initializable {
 	FileUploadClientUIController fileUploadClientUIController;
 
 	@Autowired
-	LoginService loginService;
+	Service loginService;
 
 	@Autowired
 	BaseUIController baseUIController;

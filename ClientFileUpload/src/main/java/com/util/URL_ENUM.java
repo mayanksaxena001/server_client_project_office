@@ -3,7 +3,7 @@ package com.util;
 
 public enum URL_ENUM {
 
-    UPLOAD("file/upload"),DOWNLOAD("file/download"),GET_USER_DIRECTORIES("file/directories"),
+    UPLOAD("file/upload"),DOWNLOAD("file/download"),GET_USER_DIRECTORIES("file/directories"),UPDATE_USER_DIRECTORIES("file/update"),
     LOGIN_USERS("service/users"),LOGIN_CHECK("service/users/check"),GET_USER_DETAILS("service/users/details"),
     STORE_USER_DETAILS("service/users/store"),UPDATE_USER_DETAILS("service/users/update"),
     SET_CURRENT_USER_AT_SERVER("service/users/current");

@@ -36,6 +36,10 @@
 	-fx-background-color: #0E7072;
 }
 
+.context-menu {
+  -fx-background-color: #0E7072;
+}
+
 .folder-view-button{
 	-fx-background-color : transparent;
 	-fx-min-width: 32px;

@@ -33,7 +33,7 @@ import com.util.User;
 import com.util.UserDetail;
 
 @Component
-public class LoginService {
+public class Service {
     private static HttpURLConnection httpConnection = ServerClient.httpConnection;
     public static Set<User> users = new HashSet<User>();
     public static Set<UserDetail> userDetailSet = new HashSet<UserDetail>();
@@ -199,4 +199,5 @@ public class LoginService {
 	}
 	return sb.toString().trim();
     }
+
 }

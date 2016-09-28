@@ -51,11 +51,25 @@
                   </HBox>
                   <HBox alignment="CENTER_LEFT" prefHeight="50.0" spacing="10.0">
                      <children>
-                        <Label text="Right click on the file for options">
+                        <Label text="Right click for options">
                            <font>
                               <Font name="System Bold" size="14.0" />
                            </font>
                         </Label>
+                     </children>
+                  </HBox>
+                  <HBox alignment="CENTER_LEFT" layoutX="10.0" layoutY="10.0" spacing="10.0">
+                     <children>
+                        <HBox alignment="CENTER_LEFT" HBox.hgrow="ALWAYS">
+                           <children>
+                              <Label text="Create a new folder">
+                                 <font>
+                                    <Font name="System Bold" size="14.0" />
+                                 </font>
+                              </Label>
+                           </children>
+                        </HBox>
+                        <Button fx:id="createNewFolder" mnemonicParsing="false" onAction="#handleNewFolderCreation" text="Create New Folder" />
                      </children>
                   </HBox>
                </children>

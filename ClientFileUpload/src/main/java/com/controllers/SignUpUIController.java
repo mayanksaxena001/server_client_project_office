@@ -31,7 +31,7 @@ import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
-import com.service.LoginService;
+import com.service.Service;
 import com.util.Gender;
 import com.util.URL_ENUM;
 import com.util.User;
@@ -82,7 +82,7 @@ public class SignUpUIController implements Initializable {
     public VBox vbox;
 
     @Autowired
-    LoginService loginService;
+    Service loginService;
 
     @Autowired
     BaseUIController baseUIController;

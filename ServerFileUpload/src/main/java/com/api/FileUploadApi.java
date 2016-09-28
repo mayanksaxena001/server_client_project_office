@@ -23,8 +23,13 @@ public interface FileUploadApi {
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
     public Response download(@Context HttpServletRequest request) throws IOException, ServletException;
     
-    @Path("/directories")
     @GET
+    @Path("/directories")
     @Produces(MediaType.APPLICATION_JSON)
     public List<String> fileDirectory();
+    
+    @POST
+    @Path("/update")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response updateDirectory(@Context HttpServletRequest request);
 }

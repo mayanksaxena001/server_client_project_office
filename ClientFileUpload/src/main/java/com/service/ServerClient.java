@@ -4,14 +4,20 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
+import javafx.scene.layout.GridPane;
+
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.springframework.http.MediaType;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.util.KeyValuePair;
 import com.util.URL_ENUM;
 
 public class ServerClient {
@@ -102,7 +108,7 @@ public class ServerClient {
 	if (responseCode == HttpURLConnection.HTTP_OK) {
 	    InputStream inputStream = httpConnection.getInputStream();
 	    JSONArray array = new JSONArray(
-		    LoginService.getStringFromInputStream(inputStream));
+		    Service.getStringFromInputStream(inputStream));
 	    for (int i = 0; i < array.length(); i++) {
 		String json = array.getString(i);
 		list.add(json);
@@ -114,7 +120,35 @@ public class ServerClient {
 	httpConnection.disconnect();
 	return list;
     }
-
+    
+    public static boolean updateCurrentUserDirectoriesOnServer(String string) throws Exception {
+   	String userURL = URL_ENUM.UPDATE_USER_DIRECTORIES.getUrl();
+   	System.out.println(string);
+   	URL url;
+	try {
+	    url = new URL(userURL);
+   	System.out.println(userURL);
+   	httpConnection = (HttpURLConnection) url.openConnection();
+   	httpConnection.setDoInput(true);
+	httpConnection.setDoOutput(true); 
+	httpConnection.setRequestProperty("Content-Type",
+		    MediaType.APPLICATION_JSON_VALUE);
+	KeyValuePair keyValuePair=new KeyValuePair();
+	keyValuePair.setKey("Key");
+	keyValuePair.setValue(string);
+   	OutputStream outputStream=httpConnection.getOutputStream();
+   	outputStream.write(new ObjectMapper().writeValueAsString(keyValuePair).getBytes());
+   	int responseCode = httpConnection.getResponseCode();
+   	httpConnection.disconnect();
+   	if (responseCode != HttpURLConnection.HTTP_OK) {
+   	    throw new Exception("Error updating directory " + responseCode);
+   	}
+   	} catch (Exception e) {
+	    e.printStackTrace();
+	    throw new Exception(e.getMessage());
+	}
+   	return true;
+    }
 //    private static void sendGet(String fileName) throws MalformedURLException,
 //	    IOException, ProtocolException {
 //

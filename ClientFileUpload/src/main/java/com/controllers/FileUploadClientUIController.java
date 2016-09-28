@@ -15,6 +15,7 @@ import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
+import javafx.event.EventType;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
@@ -49,8 +50,8 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import com.clientfileupload.Loader;
-import com.service.LoginService;
 import com.service.ServerClient;
+import com.service.Service;
 import com.util.UserDetail;
 import com.util.Utility;
 
@@ -58,6 +59,7 @@ import com.util.Utility;
 @Qualifier("fileUploadClientUIController")
 public class FileUploadClientUIController implements Initializable{
 
+    private static final int GRIDPANE_WIDTH = 10;
     private static final Image FOLDER_IMAGE=new Image(FileUploadClientUIController.class.getResourceAsStream("/image/folder.png"));
     private static final Image TEXT_FILE_IMAGE=new Image(FileUploadClientUIController.class.getResourceAsStream("/image/text.png"));
     private static final Image DOCUMENT_FILE_IMAGE=new Image(FileUploadClientUIController.class.getResourceAsStream("/image/document.png"));
@@ -84,6 +86,9 @@ public class FileUploadClientUIController implements Initializable{
     private Button previousButton;
     
     @FXML
+    private Button createNewFolder;
+    
+    @FXML
     private Button nextButton;
     
     @FXML
@@ -96,13 +101,12 @@ public class FileUploadClientUIController implements Initializable{
     private SignUpUIController signUpUIController;
     
     @Autowired
-    private LoginService loginService;
+    private Service loginService;
     
     private UserDetail currentUserDetail;
     
     public void initialize(URL arg0, ResourceBundle arg1) {
 	reset();
-	setCurrentUserLabel();
     }
 
     @FXML
@@ -125,7 +129,7 @@ public class FileUploadClientUIController implements Initializable{
 
     private void updateFolderView() throws IOException, JSONException {
 	mapCurrentUserDirectoryOnClient();
-	String path=LoginService.getDirectories().get(currentUserDetail.getUser().getUserName()).getAbsolutePath();
+	String path=Service.getDirectories().get(currentUserDetail.getUser().getUserName()).getAbsolutePath();
 	showFileView(path);
     }
     
@@ -245,6 +249,36 @@ public class FileUploadClientUIController implements Initializable{
 	}
     }
     
+    @FXML
+    public void handleNewFolderCreation() {
+	try {
+	    GridPane gridPane = (GridPane) scrollPane.getContent();
+		int size = gridPane.getChildren().size();
+	    int i = size / 10;
+	    int j = size % 10;
+	    String path = fileDirectoryTextField.getText()
+		    + File.separator + "NewFolder";
+	    File file = new File(path);
+	    int k=1;
+	    while(file.exists()){
+		file=new File(path+"_"+k++);
+	    }
+//	    file.mkdirs();
+	    if(ServerClient.updateCurrentUserDirectoriesOnServer(getString(file.getAbsolutePath()+File.separator))){
+		gridPane.add(getFolder(file), j, i);
+		updateFolderView();
+	    }
+	}catch (Exception e) {
+	    Utility.reportError(e.getMessage());
+	    e.printStackTrace();
+	}
+    }
+    
+    private String getString(String str) {
+	String folderName=currentUserDetail.getUniqueName();
+	return str.substring(str.lastIndexOf(folderName+File.separator)+folderName.length(), str.length());
+    }
+    
     private void reset() {
 	previousButton.setGraphic(PREVIOUS_BUTTON_IMAGE);
 	previousButton.setText("");
@@ -296,22 +330,39 @@ public class FileUploadClientUIController implements Initializable{
 	File file =new File(path);
 	fileDirectoryTextField.setText(path);
 	GridPane gridPane = getGridPane(file);
+	final ContextMenu contextMenu = new ContextMenu();
+	MenuItem newFolder = new MenuItem("Create New Folder");
+	contextMenu.getItems().addAll(newFolder);
+	newFolder.setOnAction(event->{
+	    handleNewFolderCreation();
+	    event.consume();
+	});
+	scrollPane.addEventHandler(ContextMenuEvent.CONTEXT_MENU_REQUESTED, event -> {
+	    contextMenu.show(scrollPane, event.getScreenX(), event.getScreenY());
+	        event.consume();
+	    });
+	scrollPane.addEventHandler(MouseEvent.MOUSE_PRESSED, event->{
+	    contextMenu.hide();
+	});
 	scrollPane.setContent(gridPane);
     }
-    
+
     private GridPane getGridPane(File file) {
-	File[] filelist = file.listFiles();
+	File[] fileList = file.listFiles();
 	GridPane gridPane = new GridPane();
+	if(fileList!=null && fileList.length!=0){
+	    int size = fileList.length;
+	int height=size%10==0?size/10:size/10+size%10;
 	gridPane.setPadding(new Insets(10, 10, 10, 10));
 	gridPane.setHgap(10);
 	gridPane.setVgap(10);
 	int k = 0;
 	boolean value = false;
-	for (int i = 0; i < 10; i++) {
-	    for (int j = 0; j <8 ; j++) {
-		if (filelist.length != k) {
-		    File tempFile = filelist[k++];
-		    VBox vbox = getFolder(i, j, tempFile);
+	for (int i = 0; i < height; i++) {
+	    for (int j = 0; j <GRIDPANE_WIDTH ; j++) {
+		if (size != k) {
+		    File tempFile = fileList[k++];
+		    VBox vbox = getFolder(tempFile);
 		    gridPane.add(vbox, j, i);
 		} else {
 		    value = true;
@@ -322,10 +373,11 @@ public class FileUploadClientUIController implements Initializable{
 		break;
 	    }
 	}
+    }
 	return gridPane;
     }
     
-    private VBox getFolder(int i, int j, File tempFile) {
+    private VBox getFolder(File tempFile) {
 	HBox topHbox = new HBox();
 	HBox bottomHbox = new HBox();
 	VBox vbox=new VBox();
@@ -349,14 +401,14 @@ public class FileUploadClientUIController implements Initializable{
 	vbox.setUserData(tempFile);
 	vbox.addEventHandler(MouseEvent.MOUSE_CLICKED, event->{
 	    VBox vbox1=(VBox) event.getSource();
+	    File file =(File) vbox.getUserData();
 	    if(event.getEventType().equals(MouseEvent.MOUSE_CLICKED)){
 		if(event.getClickCount()==1){
 		    vbox1.getStyleClass().clear();
 		    vbox1.getStyleClass().add("pane-selected");
 		    vbox.requestFocus();
 		}
-		else if(event.getClickCount()>1){
-		    File file =(File) vbox.getUserData();
+		else if(event.getClickCount()>1 && event.isPrimaryButtonDown()){
 		    if(file.isDirectory()){
 			showFileView(file.getAbsolutePath());
 			previousButton.setDisable(false);
@@ -368,7 +420,7 @@ public class FileUploadClientUIController implements Initializable{
 	    
 	});
 	vbox.addEventHandler(ContextMenuEvent.CONTEXT_MENU_REQUESTED, event -> {
-	    contextMenu.show(vbox, event.getScreenX(), event.getScreenY());
+	    if(!tempFile.isDirectory())contextMenu.show(vbox, event.getScreenX(), event.getScreenY());
 	        event.consume();
 	    });
 	vbox.addEventHandler(MouseEvent.MOUSE_PRESSED, event -> {
@@ -391,6 +443,7 @@ public class FileUploadClientUIController implements Initializable{
 	contextMenu.getItems().addAll(download);
 	download.setOnAction(event->{
 	    handleDownload(file.getName());
+	    event.consume();
 	});
 //	MenuItem details = new MenuIte/m("Details");
 //	details.setOnAction(event->{

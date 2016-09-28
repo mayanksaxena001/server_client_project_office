@@ -1,13 +1,17 @@
 package com.api.impl;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+
+import javafx.scene.layout.GridPane;
 
 import javax.annotation.PostConstruct;
 import javax.servlet.ServletException;
@@ -18,6 +22,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.StatusType;
 
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
@@ -27,6 +32,7 @@ import org.springframework.stereotype.Service;
 
 import com.api.FileUploadApi;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.util.KeyValuePair;
 
 @Service("fileUploadService")
 public class FileUploadService implements FileUploadApi {
@@ -169,6 +175,24 @@ public class FileUploadService implements FileUploadApi {
 	return str.substring(str.lastIndexOf(folderName+File.separator)+folderName.length(), str.length());
     }
 
+    @Override
+    public Response updateDirectory(HttpServletRequest request) {
+	String string = "";
+	try {
+	    KeyValuePair keyValuePair=objectMapper.readValue(UserService.getStringFromInputStream(request.getInputStream()), KeyValuePair.class);
+	   String path=UserService.getCurrentUserDirectory().getAbsolutePath();
+	   string=keyValuePair.getValue();
+	   File file=new File(path+File.separator+string);
+	   file.mkdirs();
+	} catch (Exception e) {
+	    e.printStackTrace();
+	    return Response.status(500).type(MediaType.APPLICATION_JSON)
+		    .entity(e.getMessage()).build();
+	}
+	return Response.ok().type(MediaType.APPLICATION_JSON)
+		.entity("Successfully updated " + string).build();
+    }
+    
     public static void main(String[] args) throws IOException {
 //	FileUploadService fileUploadService=new FileUploadService();
 //	for(String str:fileUploadService.fileDirectory()){

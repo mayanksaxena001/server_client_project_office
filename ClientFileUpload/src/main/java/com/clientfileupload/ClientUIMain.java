@@ -32,7 +32,16 @@ public class ClientUIMain extends Application {
 
     private void createDirectory() {
 	File file =new File(CLIENT_FILE_PATH);
-	file.mkdirs();
+	if(file.exists()){
+	    if(file.delete()){
+		System.out.println(CLIENT_FILE_PATH+" Deleted");
+	    }else{
+		System.out.println("Unable to delete "+CLIENT_FILE_PATH);
+	    }
+	}else{
+	    System.out.println(CLIENT_FILE_PATH+" Created");
+	    file.mkdirs();
+	}
 	System.out.println("client file store created at "+file.getAbsolutePath());
     }
 

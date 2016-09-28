@@ -64,7 +64,7 @@ public class UserService implements UserServiceApi {
 	return userSet.contains(user);
     }
     
-    private String getStringFromInputStream(InputStream is) {
+    public static String getStringFromInputStream(InputStream is) {
 	
 	BufferedReader br = null;
 	StringBuilder sb = new StringBuilder();
